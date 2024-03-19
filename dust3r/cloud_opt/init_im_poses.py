@@ -69,9 +69,16 @@ def init_minimum_spanning_tree(self, **kw):
         an initial set of pairwise estimations.
     """
     device = self.device
-    pts3d, _, im_focals, im_poses = minimum_spanning_tree(self.imshapes, self.edges,
-                                                          self.pred_i, self.pred_j, self.conf_i, self.conf_j, self.im_conf, self.min_conf_thr,
-                                                          device, has_im_poses=self.has_im_poses, **kw)
+    pts3d, _, im_focals, im_poses = minimum_spanning_tree(self.imshapes, 
+                                                          self.edges,
+                                                          self.pred_i, 
+                                                          self.pred_j, 
+                                                          self.conf_i, 
+                                                          self.conf_j, 
+                                                          self.im_conf, 
+                                                          self.min_conf_thr,
+                                                          device, 
+                                                          has_im_poses=self.has_im_poses, **kw)
 
     return init_from_pts3d(self, pts3d, im_focals, im_poses)
 
@@ -118,10 +125,20 @@ def init_from_pts3d(self, pts3d, im_focals, im_poses):
     print(' init loss =', float(self()))
 
 
-def minimum_spanning_tree(imshapes, edges, pred_i, pred_j, conf_i, conf_j, im_conf, min_conf_thr,
-                          device, has_im_poses=True, niter_PnP=10):
+def minimum_spanning_tree(imshapes, 
+                          edges, 
+                          pred_i, 
+                          pred_j, 
+                          conf_i, 
+                          conf_j, 
+                          im_conf, 
+                          min_conf_thr,
+                          device, 
+                          has_im_poses=True, 
+                          niter_PnP=10):
     n_imgs = len(imshapes)
     sparse_graph = -dict_to_sparse_graph(compute_edge_scores(map(i_j_ij, edges), conf_i, conf_j))
+    print(sparse_graph)
     msp = sp.csgraph.minimum_spanning_tree(sparse_graph).tocoo()
 
     # temp variable to store 3d points
@@ -138,6 +155,7 @@ def minimum_spanning_tree(imshapes, edges, pred_i, pred_j, conf_i, conf_j, im_co
     pts3d[i] = pred_i[i_j].clone()
     pts3d[j] = pred_j[i_j].clone()
     done = {i, j}
+
     if has_im_poses:
         im_poses[i] = torch.eye(4, device=device)
         im_focals[i] = estimate_focal(pred_i[i_j])
@@ -200,6 +218,11 @@ def minimum_spanning_tree(imshapes, edges, pred_i, pred_j, conf_i, conf_j, im_co
         im_poses = torch.stack(im_poses)
     else:
         im_poses = im_focals = None
+
+    print(im_focals)
+    
+    print(has_im_poses)
+    exit()
 
     return pts3d, msp_edges, im_focals, im_poses
 

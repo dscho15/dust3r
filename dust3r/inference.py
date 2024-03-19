@@ -66,7 +66,6 @@ def inference(pairs, model, device, batch_size=8):
     print(f'>> Inference with model on {len(pairs)} image pairs')
     result = []
 
-    # first, check if all images have the same size
     multiple_shapes = not (check_if_same_size(pairs))
     if multiple_shapes:  # force bs=1
         batch_size = 1
@@ -74,11 +73,11 @@ def inference(pairs, model, device, batch_size=8):
     for i in tqdm.trange(0, len(pairs), batch_size):
         res = loss_of_one_batch(collate_with_cat(pairs[i:i+batch_size]), model, None, device)
         result.append(to_cpu(res))
-        print(res)
 
     result = collate_with_cat(result, lists=multiple_shapes)
 
     torch.cuda.empty_cache()
+    
     return result
 
 

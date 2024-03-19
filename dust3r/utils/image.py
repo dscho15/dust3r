@@ -16,6 +16,7 @@ import cv2  # noqa
 
 try:
     from pillow_heif import register_heif_opener  # noqa
+
     register_heif_opener()
     heif_support_enabled = True
 except ImportError:
