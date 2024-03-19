@@ -1,9 +1,3 @@
-# Copyright (C) 2024-present Naver Corporation. All rights reserved.
-# Licensed under CC BY-NC-SA 4.0 (non-commercial use only).
-#
-# --------------------------------------------------------
-# utilities needed for the inference
-# --------------------------------------------------------
 import tqdm
 import torch
 from dust3r.utils.device import to_cpu, collate_with_cat
@@ -80,6 +74,7 @@ def inference(pairs, model, device, batch_size=8):
     for i in tqdm.trange(0, len(pairs), batch_size):
         res = loss_of_one_batch(collate_with_cat(pairs[i:i+batch_size]), model, None, device)
         result.append(to_cpu(res))
+        print(res)
 
     result = collate_with_cat(result, lists=multiple_shapes)
 
@@ -121,6 +116,7 @@ def get_pred_pts3d(gt, pred, use_pose=False):
 def find_opt_scaling(gt_pts1, gt_pts2, pr_pts1, pr_pts2=None, fit_mode='weiszfeld_stop_grad', valid1=None, valid2=None):
     assert gt_pts1.ndim == pr_pts1.ndim == 4
     assert gt_pts1.shape == pr_pts1.shape
+    
     if gt_pts2 is not None:
         assert gt_pts2.ndim == pr_pts2.ndim == 4
         assert gt_pts2.shape == pr_pts2.shape
